@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Magazzino">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- jsQR: lightweight, reliable QR decoder that works on Android Chrome -->
+<!-- jsQR per decodifica QR da immagine -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <title>Magazzino</title>
 <style>
@@ -168,33 +168,33 @@ select.field-inp{cursor:pointer;appearance:none}
 .btn-sec:active{background:rgba(255,255,255,.1)}
 
 /* ── SCANNER ── */
-#scanner-overlay{position:fixed;inset:0;z-index:200;background:#000;display:none;flex-direction:column}
+#scanner-overlay{position:fixed;inset:0;z-index:200;background:var(--bg);display:none;flex-direction:column}
 #scanner-overlay.show{display:flex}
-.scan-hdr{padding:52px 18px 16px;display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.85);flex-shrink:0}
-.scan-hdr-title{font-family:var(--mono);font-size:var(--fs-lg);font-weight:700;color:#fff}
-.scan-close{margin-left:auto;background:rgba(255,255,255,.15);border:none;border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:#fff;font-weight:700}
-.scan-wrap{position:relative;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#000}
-#scan-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-#scan-canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
-.scan-ui{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.scan-box{width:260px;height:260px;position:relative}
-.scan-box::before,.scan-box::after,.scan-inner::before,.scan-inner::after{content:'';position:absolute;width:50px;height:50px}
-.scan-box::before{top:0;left:0;border-top:4px solid var(--accent);border-left:4px solid var(--accent);border-radius:4px 0 0 0}
-.scan-box::after{top:0;right:0;border-top:4px solid var(--accent);border-right:4px solid var(--accent);border-radius:0 4px 0 0}
-.scan-inner::before{bottom:0;left:0;border-bottom:4px solid var(--accent);border-left:4px solid var(--accent);border-radius:0 0 0 4px}
-.scan-inner::after{bottom:0;right:0;border-bottom:4px solid var(--accent);border-right:4px solid var(--accent);border-radius:0 0 4px 0}
-.scan-line{position:absolute;left:4px;right:4px;height:3px;background:linear-gradient(90deg,transparent,var(--accent),transparent);top:0;animation:scanLine 2s ease-in-out infinite;border-radius:2px}
-@keyframes scanLine{0%{top:4px}50%{top:calc(100% - 7px)}100%{top:4px}}
-.scan-hint-txt{color:rgba(255,255,255,.8);font-size:var(--fs-md);margin-top:24px;text-align:center;padding:0 30px;font-weight:500}
-.scan-status{position:absolute;bottom:0;left:0;right:0;background:rgba(10,22,40,.97);border-top:1px solid var(--border);padding:20px 20px calc(20px + var(--sb));transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
-.scan-status.show{transform:translateY(0)}
-.scan-found-name{font-size:var(--fs-xl);font-weight:700;margin-bottom:4px}
+.scan-hdr{padding:52px 18px 16px;display:flex;align-items:center;gap:12px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.scan-hdr-title{font-family:var(--mono);font-size:var(--fs-lg);font-weight:700}
+.scan-close{margin-left:auto;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:var(--text);font-weight:700}
+.scan-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:28px}
+.scan-icon-big{font-size:80px;line-height:1}
+.scan-instructions{text-align:center}
+.scan-instructions h2{font-family:var(--mono);font-size:var(--fs-lg);font-weight:700;color:var(--text);margin-bottom:10px}
+.scan-instructions p{font-size:var(--fs-md);color:var(--text2);line-height:1.7;max-width:300px}
+.scan-photo-btn{background:linear-gradient(135deg,var(--accent),#00c87a);color:#0a1628;border:none;border-radius:18px;padding:22px 32px;font-size:var(--fs-lg);font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:12px;box-shadow:0 6px 28px rgba(0,229,160,.4);transition:all .2s;width:100%;max-width:320px;justify-content:center}
+.scan-photo-btn:active{transform:scale(.96)}
+#scan-file-input{display:none}
+.scan-processing{text-align:center;display:none}
+.scan-processing .spinner{width:40px;height:40px;border-width:3px;margin:0 auto 16px}
+.scan-processing p{font-size:var(--fs-md);color:var(--text2)}
+.scan-result{background:var(--bg2);border:1px solid rgba(0,229,160,.3);border-radius:var(--r);padding:22px;width:100%;max-width:360px;display:none}
+.scan-result.show{display:block}
+.scan-found-name{font-size:var(--fs-xl);font-weight:700;margin-bottom:4px;color:var(--text)}
 .scan-found-sub{font-size:var(--fs-sm);color:var(--text2);margin-bottom:18px}
 .scan-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .scan-btn-open{background:linear-gradient(135deg,var(--accent),#00c87a);color:#0a1628;border:none;border-radius:14px;padding:16px;font-size:var(--fs-md);font-weight:700;cursor:pointer;font-family:var(--sans)}
 .scan-btn-again{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:16px;font-size:var(--fs-md);font-weight:700;cursor:pointer;font-family:var(--sans)}
-.scan-err{position:absolute;top:16px;left:16px;right:16px;background:rgba(255,71,87,.9);border-radius:12px;padding:14px 18px;color:#fff;font-size:var(--fs-sm);font-weight:600;text-align:center;display:none}
-.scan-err.show{display:block}
+.scan-err-box{background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);border-radius:14px;padding:18px;width:100%;max-width:360px;text-align:center;display:none}
+.scan-err-box.show{display:block}
+.scan-err-box p{font-size:var(--fs-md);color:var(--danger);margin-bottom:14px;font-weight:600}
+#scan-canvas{display:none}
 
 /* ── NEW ARTICLE ── */
 .new-art-form{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:16px}
@@ -412,25 +412,46 @@ select.field-inp{cursor:pointer;appearance:none}
     <span class="scan-hdr-title">Scansiona QR</span>
     <button class="scan-close" onclick="closeScanner()">✕</button>
   </div>
-  <div class="scan-wrap">
-    <video id="scan-video" autoplay playsinline muted></video>
-    <canvas id="scan-canvas"></canvas>
-    <div class="scan-ui">
-      <div class="scan-box">
-        <div class="scan-line"></div>
-        <div class="scan-inner"></div>
-      </div>
-      <div class="scan-hint-txt">Inquadra il QR code dell'articolo</div>
+  <div class="scan-body">
+
+    <div class="scan-icon-big">🔲</div>
+
+    <div class="scan-instructions">
+      <h2>Fotografa il QR code</h2>
+      <p>Premi il pulsante, inquadra il QR sull'etichetta e scatta la foto. L'app lo legge automaticamente.</p>
     </div>
-    <div class="scan-err" id="scan-err"></div>
-    <div class="scan-status" id="scan-status">
+
+    <!-- Input fotocamera nativo Android — il più affidabile -->
+    <input type="file" id="scan-file-input" accept="image/*" capture="environment"
+      onchange="processQRPhoto(this)">
+
+    <button class="scan-photo-btn" onclick="document.getElementById('scan-file-input').click()">
+      📷 Scatta foto al QR
+    </button>
+
+    <!-- Elaborazione in corso -->
+    <div class="scan-processing" id="scan-processing">
+      <div class="spinner"></div>
+      <p>Lettura QR in corso...</p>
+    </div>
+
+    <!-- Risultato trovato -->
+    <div class="scan-result" id="scan-result">
       <div class="scan-found-name" id="scan-found-name">—</div>
       <div class="scan-found-sub" id="scan-found-sub"></div>
       <div class="scan-btns">
         <button class="scan-btn-open" onclick="openScannedArticle()">📦 Apri articolo</button>
-        <button class="scan-btn-again" onclick="resetScan()">↺ Riscannerizza</button>
+        <button class="scan-btn-again" onclick="resetScan()">↺ Riprova</button>
       </div>
     </div>
+
+    <!-- Errore -->
+    <div class="scan-err-box" id="scan-err-box">
+      <p id="scan-err-txt">QR non riconosciuto. Riprova avvicinandoti e assicurandoti che il QR sia ben illuminato.</p>
+      <button class="scan-btn-again" onclick="resetScan()" style="width:100%">↺ Riprova</button>
+    </div>
+
+    <canvas id="scan-canvas"></canvas>
   </div>
 </div>
 
@@ -470,7 +491,7 @@ const CFG_KEY = 'mgz_cfg_v3';
 let cfg = null, isDemo = false;
 let allArticles = [], destOptions = [];
 let currentArticle = null, currentOp = 'take';
-let scanStream = null, scanRAF = null, scannedArtName = null, scanActive = false;
+let scannedArtName = null;
 
 const DEMO_A = [
   {id:'ART001',name:'Carta A4 80gr',desc:'Risma 500 fogli A4 80g/m²',qty:46,min:10,unit:'Risma',fornitore:'Buffetti SpA',email:'ordini@buffetti.it',link:'',costo:4.5,scaffale:'Scaffale A · Ripiano 1'},
@@ -710,89 +731,138 @@ function showArticleQR(id,name){document.getElementById('qr-name').textContent=n
 function closeQRModal(){document.getElementById('qr-modal').classList.remove('show');}
 function openQRFullscreen(){window.open(document.getElementById('qr-img').src,'_blank');}
 
-// ── QR SCANNER (jsQR — canvas polling) ──────────────────
-async function openScanner(){
-  const overlay=document.getElementById('scanner-overlay');
-  overlay.classList.add('show');
-  document.getElementById('scan-status').classList.remove('show');
-  document.getElementById('scan-err').classList.remove('show');
-  scannedArtName=null; scanActive=true;
+// ── QR SCANNER (foto nativa — massima compatibilità Android) ──
+function openScanner(){
+  // Reset UI
+  document.getElementById('scan-result').classList.remove('show');
+  document.getElementById('scan-err-box').classList.remove('show');
+  document.getElementById('scan-processing').style.display='none';
+  document.getElementById('scan-file-input').value='';
+  scannedArtName=null;
+  document.getElementById('scanner-overlay').classList.add('show');
+}
+
+function closeScanner(){
+  document.getElementById('scanner-overlay').classList.remove('show');
+  document.getElementById('scan-file-input').value='';
+}
+
+async function processQRPhoto(input){
+  const file=input.files[0];
+  if(!file) return;
+
+  // Mostra spinner
+  document.getElementById('scan-processing').style.display='block';
+  document.getElementById('scan-result').classList.remove('show');
+  document.getElementById('scan-err-box').classList.remove('show');
 
   try {
-    scanStream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}
-    });
-    const video=document.getElementById('scan-video');
-    video.srcObject=scanStream;
-    await new Promise(r=>{video.onloadedmetadata=r;});
-    await video.play();
-    startScanLoop();
-  } catch(e){
-    showScanError('Accesso fotocamera negato. Vai in Impostazioni → Chrome → Fotocamera e consenti l\'accesso.');
+    const text = await decodeQRFromFile(file);
+    document.getElementById('scan-processing').style.display='none';
+    if(text){ onQRFound(text); }
+    else { showScanError('QR non riconosciuto. Avvicinati, assicurati che sia ben illuminato e riprova.'); }
+  } catch(e) {
+    document.getElementById('scan-processing').style.display='none';
+    showScanError('Errore nella lettura. Riprova.');
   }
 }
 
-function startScanLoop(){
-  const video=document.getElementById('scan-video');
-  const canvas=document.getElementById('scan-canvas');
-  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+function decodeQRFromFile(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      const img=new Image();
+      img.onload=function(){
+        // Disegna su canvas e analizza con jsQR
+        const canvas=document.getElementById('scan-canvas');
+        const ctx=canvas.getContext('2d',{willReadFrequently:true});
 
-  function tick(){
-    if(!scanActive) return;
-    if(video.readyState===video.HAVE_ENOUGH_DATA){
-      canvas.width=video.videoWidth;
-      canvas.height=video.videoHeight;
-      ctx.drawImage(video,0,0);
-      try{
-        const img=ctx.getImageData(0,0,canvas.width,canvas.height);
-        const code=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
-        if(code){
-          onQRFound(code.data);
-          return; // stop after finding
+        // Scala se troppo grande (jsQR lavora meglio sotto 1500px)
+        const MAX=1200;
+        let w=img.width, h=img.height;
+        if(w>MAX||h>MAX){
+          const ratio=Math.min(MAX/w,MAX/h);
+          w=Math.round(w*ratio); h=Math.round(h*ratio);
         }
-      }catch(e){}
-    }
-    scanRAF=requestAnimationFrame(tick);
-  }
-  scanRAF=requestAnimationFrame(tick);
+        canvas.width=w; canvas.height=h;
+        ctx.drawImage(img,0,0,w,h);
+
+        const imageData=ctx.getImageData(0,0,w,h);
+        const code=jsQR(imageData.data,imageData.width,imageData.height,{
+          inversionAttempts:'attemptBoth'
+        });
+        resolve(code ? code.data : null);
+      };
+      img.onerror=()=>reject(new Error('Immagine non leggibile'));
+      img.src=ev.target.result;
+    };
+    reader.onerror=()=>reject(new Error('File non leggibile'));
+    reader.readAsDataURL(file);
+  });
 }
 
 function onQRFound(text){
-  scanActive=false;
-  if(scanRAF){cancelAnimationFrame(scanRAF);scanRAF=null;}
   if(navigator.vibrate) navigator.vibrate([80,40,80]);
-
   let artName=null;
   try{ const u=new URL(text); artName=u.searchParams.get('art'); }
   catch(e){ artName=text; }
-
-  if(!artName){showScanError('QR non riconosciuto come articolo. Riprova.');scanActive=true;startScanLoop();return;}
+  if(!artName){ showScanError('QR non riconosciuto come articolo magazzino.'); return; }
 
   scannedArtName=artName;
   const art=allArticles.find(a=>a.name===artName||a.id===artName);
   document.getElementById('scan-found-name').textContent=art?art.name:artName;
-  document.getElementById('scan-found-sub').textContent=art?`Scorta: ${art.qty} ${art.unit||'pz'} · ${art.scaffale||''}`:' Tocca per aprire';
-  document.getElementById('scan-status').classList.add('show');
+  document.getElementById('scan-found-sub').textContent=art
+    ?`Scorta: ${art.qty} ${art.unit||'pz'}${art.scaffale?' · '+art.scaffale:''}`
+    :'Articolo trovato';
+  document.getElementById('scan-result').classList.add('show');
 }
 
 function showScanError(msg){
-  const el=document.getElementById('scan-err');
-  el.textContent=msg; el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'),4000);
+  document.getElementById('scan-err-txt').textContent=msg;
+  document.getElementById('scan-err-box').classList.add('show');
 }
 
 function resetScan(){
-  document.getElementById('scan-status').classList.remove('show');
-  scannedArtName=null; scanActive=true;
-  startScanLoop();
+  document.getElementById('scan-result').classList.remove('show');
+  document.getElementById('scan-err-box').classList.remove('show');
+  document.getElementById('scan-processing').style.display='none';
+  document.getElementById('scan-file-input').value='';
+  scannedArtName=null;
 }
 
 function openScannedArticle(){
-  if(!scannedArtName)return;
+  if(!scannedArtName) return;
   const name=scannedArtName;
   closeScanner();
-  setTimeout(()=>openArticleByName(name),350);
+  setTimeout(()=>openArticleByName(name),300);
 }
+
+// ── PAGES & UI ──────────────────────────────────────────
+function showPage(p){
+  ['home','article','new','history','settings'].forEach(x=>{
+    document.getElementById('page-'+x).classList.toggle('active',x===p);
+    const n=document.getElementById('nav-'+x);if(n)n.classList.toggle('active',x===p);
+  });
+  if(p==='history')loadHistory();
+  window.scrollTo(0,0);
+}
+function filterArticles(){const q=document.getElementById('search').value.toLowerCase();renderList(allArticles.filter(a=>a.name.toLowerCase().includes(q)||(a.desc||'').toLowerCase().includes(q)||(a.fornitore||'').toLowerCase().includes(q)));}
+
+let _tt;
+function showToast(type,icon,text){const el=document.getElementById('toast');document.getElementById('toast-ico').textContent=icon;document.getElementById('toast-txt').textContent=text;el.className='toast '+type+' show';clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3200);}
+function showSov(ico,title,msg){document.getElementById('sov-ico').textContent=ico;document.getElementById('sov-title').textContent=title;document.getElementById('sov-msg').textContent=msg;document.getElementById('sov').classList.add('show');}
+function closeSov(){document.getElementById('sov').classList.remove('show');}
+function resetSetup(){if(confirm('Reimpostare?')){localStorage.removeItem(CFG_KEY);location.reload();}}
+function confirmReset(){if(confirm('Reset completo?')){localStorage.clear();location.reload();}}
+function editName(){const n=prompt('Nome:',cfg.userName||'');if(n!==null){cfg.userName=n.trim();localStorage.setItem(CFG_KEY,JSON.stringify(cfg));document.getElementById('cfg-name').textContent=cfg.userName||'—';document.getElementById('hdr-sub').textContent=cfg.userName||'';}}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
+
 
 function closeScanner(){
   scanActive=false;
