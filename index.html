@@ -862,39 +862,3 @@ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch
 </script>
 </body>
 </html>
-
-
-function closeScanner(){
-  scanActive=false;
-  if(scanRAF){cancelAnimationFrame(scanRAF);scanRAF=null;}
-  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
-  const video=document.getElementById('scan-video');
-  video.srcObject=null;
-  document.getElementById('scanner-overlay').classList.remove('show');
-}
-
-// ── PAGES & UI ──────────────────────────────────────────
-function showPage(p){
-  ['home','article','new','history','settings'].forEach(x=>{
-    document.getElementById('page-'+x).classList.toggle('active',x===p);
-    const n=document.getElementById('nav-'+x);if(n)n.classList.toggle('active',x===p);
-  });
-  if(p==='history')loadHistory();
-  window.scrollTo(0,0);
-}
-function filterArticles(){const q=document.getElementById('search').value.toLowerCase();renderList(allArticles.filter(a=>a.name.toLowerCase().includes(q)||(a.desc||'').toLowerCase().includes(q)||(a.fornitore||'').toLowerCase().includes(q)));}
-
-let _tt;
-function showToast(type,icon,text){const el=document.getElementById('toast');document.getElementById('toast-ico').textContent=icon;document.getElementById('toast-txt').textContent=text;el.className='toast '+type+' show';clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3200);}
-function showSov(ico,title,msg){document.getElementById('sov-ico').textContent=ico;document.getElementById('sov-title').textContent=title;document.getElementById('sov-msg').textContent=msg;document.getElementById('sov').classList.add('show');}
-function closeSov(){document.getElementById('sov').classList.remove('show');}
-function resetSetup(){if(confirm('Reimpostare?')){localStorage.removeItem(CFG_KEY);location.reload();}}
-function confirmReset(){if(confirm('Reset completo?')){localStorage.clear();location.reload();}}
-function editName(){const n=prompt('Nome:',cfg.userName||'');if(n!==null){cfg.userName=n.trim();localStorage.setItem(CFG_KEY,JSON.stringify(cfg));document.getElementById('cfg-name').textContent=cfg.userName||'—';document.getElementById('hdr-sub').textContent=cfg.userName||'';}}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-
-if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
-</script>
-</body>
-</html>
