@@ -388,13 +388,10 @@ select.field-inp{cursor:pointer;appearance:none}
         <div class="set-hdr">Dati</div>
         <div class="set-row"><div><div class="set-lbl">Reset app</div><div class="set-sub">Cancella configurazione</div></div><button class="btn-sm btn-danger" onclick="confirmReset()">Reset</button></div>
       </div>
-      <div style="text-align:center;margin-top:22px;font-size:var(--fs-sm);color:var(--text2);line-height:2">Magazzino PWA v3.0<br>Google Sheets + Apps Script</div>
+      <div style="text-align:center;margin-top:22px;font-size:var(--fs-sm);color:var(--text2);line-height:2">Magazzino PWA v5.0<br>Google Sheets + Apps Script</div>
     </div>
 
   </div>
-
-  <!-- FAB -->
-  <button class="fab" onclick="openScanner()" title="Scansiona QR">📷</button>
 
   <!-- BOTTOM NAV -->
   <nav class="bnav">
@@ -405,53 +402,28 @@ select.field-inp{cursor:pointer;appearance:none}
   </nav>
 </div>
 
-<!-- SCANNER -->
-<div id="scanner-overlay">
-  <div class="scan-hdr">
-    <span style="font-size:22px">📷</span>
-    <span class="scan-hdr-title">Scansiona QR</span>
-    <button class="scan-close" onclick="closeScanner()">✕</button>
-  </div>
-  <div class="scan-body">
-
-    <div class="scan-icon-big">🔲</div>
-
-    <div class="scan-instructions">
-      <h2>Fotografa il QR code</h2>
-      <p>Premi il pulsante, inquadra il QR sull'etichetta e scatta la foto. L'app lo legge automaticamente.</p>
+<!-- SCANNER MODAL -->
+<div id="scanner-overlay" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:32px 24px;text-align:center;max-width:340px;width:92%;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)">
+    <div style="font-size:64px;margin-bottom:16px">📷</div>
+    <div style="font-family:var(--mono);font-size:var(--fs-lg);font-weight:700;color:var(--accent);margin-bottom:10px">Scansiona QR</div>
+    <div style="font-size:var(--fs-md);color:var(--text2);line-height:1.7;margin-bottom:24px">
+      Apri l'app <b style="color:var(--text)">Scansione codice QR</b> del telefono, inquadra il QR sull'etichetta.<br><br>
+      Il link si apre automaticamente mostrando la scheda dell'articolo.
     </div>
-
-    <!-- Input fotocamera nativo Android — il più affidabile -->
-    <input type="file" id="scan-file-input" accept="image/*" capture="environment"
-      onchange="processQRPhoto(this)">
-
-    <button class="scan-photo-btn" onclick="document.getElementById('scan-file-input').click()">
-      📷 Scatta foto al QR
-    </button>
-
-    <!-- Elaborazione in corso -->
-    <div class="scan-processing" id="scan-processing">
-      <div class="spinner"></div>
-      <p>Lettura QR in corso...</p>
-    </div>
-
-    <!-- Risultato trovato -->
-    <div class="scan-result" id="scan-result">
-      <div class="scan-found-name" id="scan-found-name">—</div>
-      <div class="scan-found-sub" id="scan-found-sub"></div>
-      <div class="scan-btns">
-        <button class="scan-btn-open" onclick="openScannedArticle()">📦 Apri articolo</button>
-        <button class="scan-btn-again" onclick="resetScan()">↺ Riprova</button>
+    <div style="background:var(--bg3);border-radius:14px;padding:14px 16px;margin-bottom:20px;text-align:left">
+      <div style="font-size:var(--fs-xs);font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Passaggi</div>
+      <div style="font-size:var(--fs-sm);color:var(--text);line-height:2">
+        1️⃣ Apri <b>Scansione codice QR</b><br>
+        2️⃣ Inquadra il QR sull'etichetta<br>
+        3️⃣ Tocca il link che appare<br>
+        4️⃣ Si apre la scheda articolo ✅
       </div>
     </div>
-
-    <!-- Errore -->
-    <div class="scan-err-box" id="scan-err-box">
-      <p id="scan-err-txt">QR non riconosciuto. Riprova avvicinandoti e assicurandoti che il QR sia ben illuminato.</p>
-      <button class="scan-btn-again" onclick="resetScan()" style="width:100%">↺ Riprova</button>
-    </div>
-
-    <canvas id="scan-canvas"></canvas>
+    <button onclick="document.getElementById('scanner-overlay').style.display='none'"
+      style="background:linear-gradient(135deg,var(--accent),#00c87a);color:#0a1628;border:none;border-radius:14px;padding:16px;font-size:var(--fs-md);font-weight:700;cursor:pointer;width:100%;font-family:var(--sans)">
+      ✅ Ho capito
+    </button>
   </div>
 </div>
 
@@ -731,110 +703,12 @@ function showArticleQR(id,name){document.getElementById('qr-name').textContent=n
 function closeQRModal(){document.getElementById('qr-modal').classList.remove('show');}
 function openQRFullscreen(){window.open(document.getElementById('qr-img').src,'_blank');}
 
-// ── QR SCANNER (foto nativa — massima compatibilità Android) ──
+// ── SCANNER (usa app QR di sistema) ──────────────────────
 function openScanner(){
-  // Reset UI
-  document.getElementById('scan-result').classList.remove('show');
-  document.getElementById('scan-err-box').classList.remove('show');
-  document.getElementById('scan-processing').style.display='none';
-  document.getElementById('scan-file-input').value='';
-  scannedArtName=null;
-  document.getElementById('scanner-overlay').classList.add('show');
+  document.getElementById('scanner-overlay').style.display='flex';
 }
-
 function closeScanner(){
-  document.getElementById('scanner-overlay').classList.remove('show');
-  document.getElementById('scan-file-input').value='';
-}
-
-async function processQRPhoto(input){
-  const file=input.files[0];
-  if(!file) return;
-
-  // Mostra spinner
-  document.getElementById('scan-processing').style.display='block';
-  document.getElementById('scan-result').classList.remove('show');
-  document.getElementById('scan-err-box').classList.remove('show');
-
-  try {
-    const text = await decodeQRFromFile(file);
-    document.getElementById('scan-processing').style.display='none';
-    if(text){ onQRFound(text); }
-    else { showScanError('QR non riconosciuto. Avvicinati, assicurati che sia ben illuminato e riprova.'); }
-  } catch(e) {
-    document.getElementById('scan-processing').style.display='none';
-    showScanError('Errore nella lettura. Riprova.');
-  }
-}
-
-function decodeQRFromFile(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onload=function(ev){
-      const img=new Image();
-      img.onload=function(){
-        // Disegna su canvas e analizza con jsQR
-        const canvas=document.getElementById('scan-canvas');
-        const ctx=canvas.getContext('2d',{willReadFrequently:true});
-
-        // Scala se troppo grande (jsQR lavora meglio sotto 1500px)
-        const MAX=1200;
-        let w=img.width, h=img.height;
-        if(w>MAX||h>MAX){
-          const ratio=Math.min(MAX/w,MAX/h);
-          w=Math.round(w*ratio); h=Math.round(h*ratio);
-        }
-        canvas.width=w; canvas.height=h;
-        ctx.drawImage(img,0,0,w,h);
-
-        const imageData=ctx.getImageData(0,0,w,h);
-        const code=jsQR(imageData.data,imageData.width,imageData.height,{
-          inversionAttempts:'attemptBoth'
-        });
-        resolve(code ? code.data : null);
-      };
-      img.onerror=()=>reject(new Error('Immagine non leggibile'));
-      img.src=ev.target.result;
-    };
-    reader.onerror=()=>reject(new Error('File non leggibile'));
-    reader.readAsDataURL(file);
-  });
-}
-
-function onQRFound(text){
-  if(navigator.vibrate) navigator.vibrate([80,40,80]);
-  let artName=null;
-  try{ const u=new URL(text); artName=u.searchParams.get('art'); }
-  catch(e){ artName=text; }
-  if(!artName){ showScanError('QR non riconosciuto come articolo magazzino.'); return; }
-
-  scannedArtName=artName;
-  const art=allArticles.find(a=>a.name===artName||a.id===artName);
-  document.getElementById('scan-found-name').textContent=art?art.name:artName;
-  document.getElementById('scan-found-sub').textContent=art
-    ?`Scorta: ${art.qty} ${art.unit||'pz'}${art.scaffale?' · '+art.scaffale:''}`
-    :'Articolo trovato';
-  document.getElementById('scan-result').classList.add('show');
-}
-
-function showScanError(msg){
-  document.getElementById('scan-err-txt').textContent=msg;
-  document.getElementById('scan-err-box').classList.add('show');
-}
-
-function resetScan(){
-  document.getElementById('scan-result').classList.remove('show');
-  document.getElementById('scan-err-box').classList.remove('show');
-  document.getElementById('scan-processing').style.display='none';
-  document.getElementById('scan-file-input').value='';
-  scannedArtName=null;
-}
-
-function openScannedArticle(){
-  if(!scannedArtName) return;
-  const name=scannedArtName;
-  closeScanner();
-  setTimeout(()=>openArticleByName(name),300);
+  document.getElementById('scanner-overlay').style.display='none';
 }
 
 // ── PAGES & UI ──────────────────────────────────────────
