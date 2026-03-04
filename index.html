@@ -235,6 +235,8 @@ select.field-inp{cursor:pointer;appearance:none}
 
 /* ── BOTTOM NAV ── */
 .bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,22,40,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 calc(8px + var(--sb));z-index:50}
+.nitem-wrap{position:relative;flex:1;display:flex;justify-content:center}
+.nalert{position:absolute;top:2px;right:12px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;border-radius:10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none;display:none}
 .nitem{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;cursor:pointer;transition:all .2s;color:var(--text2);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border:none;background:none;font-family:var(--sans)}
 .nitem.active{color:var(--accent)}
 .nitem .ni{font-size:26px}
@@ -377,7 +379,7 @@ select.field-inp{cursor:pointer;appearance:none}
       <div class="set-sec">
         <div class="set-hdr">Connessione</div>
         <div class="set-row"><div><div class="set-lbl">Script URL</div><div class="set-sub" id="cfg-url">—</div></div><button class="btn-sm" onclick="resetSetup()">Cambia</button></div>
-        <div class="set-row"><div><div class="set-lbl">Operatore</div><div class="set-sub" id="cfg-name">—</div></div><button class="btn-sm" onclick="editName()">Modifica</button></div>
+        <div class="set-row"><div><div class="set-lbl">👤 Operatore attivo</div><div class="set-sub" id="cfg-name">—</div></div><button class="btn-sm" onclick="showOpModal()">Cambia</button></div>
         <div class="set-row"><div><div class="set-lbl">Modalità</div><div class="set-sub" id="cfg-mode">—</div></div></div>
       </div>
       <div class="set-sec">
@@ -396,10 +398,10 @@ select.field-inp{cursor:pointer;appearance:none}
 
   <!-- BOTTOM NAV -->
   <nav class="bnav">
-    <button class="nitem active" id="nav-home" onclick="showPage('home')"><span class="ni">🏠</span>Home</button>
-    <button class="nitem" id="nav-new" onclick="showPage('new')"><span class="ni">➕</span>Nuovo</button>
-    <button class="nitem" id="nav-history" onclick="showPage('history')"><span class="ni">📋</span>Movimenti</button>
-    <button class="nitem" id="nav-settings" onclick="showPage('settings')"><span class="ni">⚙️</span>Impostazioni</button>
+    <div class="nitem-wrap"><button class="nitem active" id="nav-home" onclick="showPage('home')"><span class="ni">🏠</span>Home</button><span class="nalert" id="badge-alert"></span></div>
+    <div class="nitem-wrap"><button class="nitem" id="nav-new" onclick="showPage('new')"><span class="ni">➕</span>Nuovo</button></div>
+    <div class="nitem-wrap"><button class="nitem" id="nav-history" onclick="showPage('history')"><span class="ni">📋</span>Movimenti</button></div>
+    <div class="nitem-wrap"><button class="nitem" id="nav-settings" onclick="showPage('settings')"><span class="ni">⚙️</span>Impostazioni</button></div>
   </nav>
 </div>
 
@@ -425,6 +427,50 @@ select.field-inp{cursor:pointer;appearance:none}
       style="background:linear-gradient(135deg,var(--accent),#00c87a);color:#0a1628;border:none;border-radius:14px;padding:16px;font-size:var(--fs-md);font-weight:700;cursor:pointer;width:100%;font-family:var(--sans)">
       ✅ Ho capito
     </button>
+  </div>
+</div>
+
+<!-- OPERATORE MODAL -->
+<div id="op-modal" style="position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:32px 24px;text-align:center;max-width:340px;width:92%;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)">
+    <div style="font-size:48px;margin-bottom:12px">👤</div>
+    <div style="font-family:var(--mono);font-size:var(--fs-lg);font-weight:700;color:var(--accent);margin-bottom:6px">Chi sei?</div>
+    <div style="font-size:var(--fs-sm);color:var(--text2);margin-bottom:22px">Seleziona il tuo nome per accedere</div>
+    <div id="op-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"></div>
+    <button onclick="closeOpModal()" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:var(--fs-sm);cursor:pointer;width:100%;font-family:var(--sans)">Annulla</button>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div id="pin-modal" style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px)">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:32px 24px;text-align:center;max-width:320px;width:92%;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)">
+    <div id="pin-avatar" style="font-size:40px;margin-bottom:8px">🔐</div>
+    <div id="pin-nome" style="font-family:var(--mono);font-size:var(--fs-lg);font-weight:700;color:var(--accent);margin-bottom:4px">—</div>
+    <div style="font-size:var(--fs-sm);color:var(--text2);margin-bottom:20px">Inserisci il PIN a 4 cifre</div>
+    <!-- Dots display -->
+    <div style="display:flex;justify-content:center;gap:14px;margin-bottom:24px">
+      <div id="pd0" class="pin-dot"></div>
+      <div id="pd1" class="pin-dot"></div>
+      <div id="pd2" class="pin-dot"></div>
+      <div id="pd3" class="pin-dot"></div>
+    </div>
+    <!-- Error message -->
+    <div id="pin-err" style="color:#e74c3c;font-size:var(--fs-sm);margin-bottom:12px;min-height:18px;font-weight:600"></div>
+    <!-- Tastierino numerico -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+      <button class="pin-btn" onclick="pinKey('1')">1</button>
+      <button class="pin-btn" onclick="pinKey('2')">2</button>
+      <button class="pin-btn" onclick="pinKey('3')">3</button>
+      <button class="pin-btn" onclick="pinKey('4')">4</button>
+      <button class="pin-btn" onclick="pinKey('5')">5</button>
+      <button class="pin-btn" onclick="pinKey('6')">6</button>
+      <button class="pin-btn" onclick="pinKey('7')">7</button>
+      <button class="pin-btn" onclick="pinKey('8')">8</button>
+      <button class="pin-btn" onclick="pinKey('9')">9</button>
+      <button class="pin-btn pin-btn-alt" onclick="closePinGoBack()" style="font-size:18px">←</button>
+      <button class="pin-btn" onclick="pinKey('0')">0</button>
+      <button class="pin-btn pin-btn-del" onclick="pinDel()" style="font-size:18px">⌫</button>
+    </div>
   </div>
 </div>
 
@@ -462,8 +508,17 @@ select.field-inp{cursor:pointer;appearance:none}
 // ── STATE ──────────────────────────────────────────────────
 const CFG_KEY = 'mgz_cfg_v3';
 let cfg = null, isDemo = false;
-let allArticles = [], destOptions = [];
+let allArticles = [], destOptions = [], operatoriOptions = [];
 let currentArticle = null, currentOp = 'take';
+// PIN auth
+let pinBuffer = '', pinTargetOperator = null;
+// Ruoli: 'admin' | 'operatore' | 'visualizzatore'
+const ROLES = { admin:'admin', op:'operatore', view:'visualizzatore' };
+function currentRole(){ return (cfg?.userRole||'').toLowerCase(); }
+function isAdmin(){ return currentRole()===ROLES.admin; }
+function isOp(){    return currentRole()===ROLES.op || isAdmin(); }
+function canWrite(){ return isOp(); }  // può fare prelievi/rifornimenti/nuovi articoli
+function canInv(){   return isAdmin(); } // solo admin fa inventario e impostazioni
 let scannedArtName = null;
 
 const DEMO_A = [
@@ -524,6 +579,11 @@ function startApp() {
     if (window._qrArt) openArticleByName(window._qrArt);
   });
   loadDestinations();
+  loadOperatori().then(()=>{
+    // Se nessun operatore o PIN non verificato, mostra modal selezione
+    if((!cfg.userName || !cfg.pinVerified) && operatoriOptions.length) showOpModal();
+  });
+  applyRoleUI();
 }
 
 // ── API ──────────────────────────────────────────────────
@@ -551,6 +611,10 @@ async function loadDestinations() {
   if (isDemo){ destOptions=DEMO_D; return; }
   const d=await apiGet('getDestinations'); destOptions=d?.destinations||[];
 }
+async function loadOperatori() {
+  if (isDemo){ operatoriOptions=[]; return; }
+  const d=await apiGet('getOperatori'); operatoriOptions=d?.operatori||[];
+}
 async function loadHistory() {
   document.getElementById('hist-list').innerHTML='<div class="loading"><div class="spinner"></div>Caricamento...</div>';
   let h;
@@ -564,6 +628,17 @@ async function refreshAll(){ await loadArticles(); await loadDestinations(); sho
 function updateStats(a){
   document.getElementById('s-ok').textContent=a.filter(x=>x.qty>x.min).length;
   document.getElementById('s-warn').textContent=a.filter(x=>x.qty<=x.min).length;
+  // Badge rosso — esauriti + sotto scorta minima
+  const critici = a.filter(x=>x.qty<=x.min).length;
+  const badge = document.getElementById('badge-alert');
+  if(badge){
+    if(critici>0){
+      badge.textContent = critici > 99 ? '99+' : critici;
+      badge.style.display='flex';
+    } else {
+      badge.style.display='none';
+    }
+  }
 }
 function gsc(a){ return a.qty<=0?{cls:'sdanger',dot:'ddanger'}:a.qty<=a.min?{cls:'swarn',dot:'dwarn'}:{cls:'sok',dot:'dok'}; }
 function ico(n){ n=n.toLowerCase(); return n.includes('carta')||n.includes('foglio')||n.includes('blocco')?'📄':n.includes('penn')||n.includes('bic')?'✏️':n.includes('toner')||n.includes('cartuccia')?'🖨️':n.includes('guant')?'🧤':n.includes('nastro')||n.includes('adesivo')?'📦':n.includes('batteria')?'🔋':n.includes('cavo')?'🔌':n.includes('sapone')||n.includes('detersivo')?'🧴':'📦'; }
@@ -623,7 +698,7 @@ function renderDetail(a){
         <div class="op-btns">
           <button class="op-btn at" id="op-take" onclick="selOp('take')"><span class="oi">📤</span>Ho prelevato</button>
           <button class="op-btn" id="op-add" onclick="selOp('add')"><span class="oi">📥</span>Ho aggiunto</button>
-          <button class="op-btn" id="op-inv" onclick="selOp('inv')"><span class="oi">📊</span>Inventario</button>
+          ${canInv()?'<button class="op-btn" id="op-inv" onclick="selOp(\'inv\')"><span class="oi">📊</span>Inventario</button>':'<div></div>'}
         </div>
         <div>
           <div class="qty-row">
@@ -636,6 +711,15 @@ function renderDetail(a){
         <div class="field-g" id="dest-g">
           <label class="field-lbl">Destinazione / Reparto</label>
           <select class="field-inp" id="dest-sel"><option value="">— Seleziona —</option>${dOpts}</select>
+        </div>
+        <div class="field-g">
+          <label class="field-lbl">Operatore</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="field-inp" id="op-sel" style="flex:1">
+              <option value="">— Seleziona —</option>
+              ${operatoriOptions.map(o=>`<option value="${esc(o.nome||o)}" ${cfg.userName===(o.nome||o)?'selected':''}>${esc(o.nome||o)}</option>`).join('')}
+            </select>
+          </div>
         </div>
         <div class="field-g">
           <label class="field-lbl">Note (opzionale)</label>
@@ -662,14 +746,18 @@ function selOp(op){
 function adjQty(d){const i=document.getElementById('qty-inp');i.value=Math.max(0,(parseInt(i.value)||0)+d);}
 
 async function submitMov(){
+  if(!canWrite()){ showToast('warn','🔒','Solo gli operatori possono registrare movimenti'); return; }
+  if(currentOp==='inv' && !canInv()){ showToast('warn','🔒','Solo gli admin possono fare inventario'); return; }
   const qty=parseInt(document.getElementById('qty-inp').value);
   if(isNaN(qty)||qty<0){showToast('error','⚠️','Quantità non valida');return;}
   const dest=document.getElementById('dest-sel')?.value||'';
+  const opSel=document.getElementById('op-sel')?.value||cfg.userName||'';
+  if(opSel){ cfg.userName=opSel; localStorage.setItem(CFG_KEY,JSON.stringify(cfg)); document.getElementById('hdr-sub').textContent=opSel; }
   const notes=document.getElementById('notes-inp').value.trim();
   const btn=document.getElementById('sub-btn');
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
   const ops={take:'Ho prelevato',add:'Ho aggiunto / Rifornimento',inv:'Inventario — quantità attuale'};
-  const res=await apiPost('addMovement',{articolo:currentArticle.name,operazione:ops[currentOp],quantita:qty,destinazione:dest,note:notes,operatore:cfg.userName||'',timestamp:new Date().toLocaleString('it-IT')});
+  const res=await apiPost('addMovement',{articolo:currentArticle.name,operazione:ops[currentOp],quantita:qty,destinazione:dest,note:notes,operatore:opSel,timestamp:new Date().toLocaleString('it-IT')});
   btn.disabled=false;selOp(currentOp);
   if(res.success){
     if(currentOp==='take')currentArticle.qty-=qty;
@@ -712,6 +800,104 @@ function showArticleQR(id,name){document.getElementById('qr-name').textContent=n
 function closeQRModal(){document.getElementById('qr-modal').classList.remove('show');}
 function openQRFullscreen(){window.open(document.getElementById('qr-img').src,'_blank');}
 
+// ── OPERATORE MODAL ──────────────────────────────────────
+function showOpModal(){
+  const list = document.getElementById('op-list');
+  if(!operatoriOptions.length){ showToast('warn','👤','Nessun operatore nel foglio OPERATORI'); return; }
+  const roleColor = { admin:'#c0392b', operatore:'#e67e22', visualizzatore:'#27ae60' };
+  const roleIcon  = { admin:'\U0001f511', operatore:'\U0001f527', visualizzatore:'\U0001f441\ufe0f' };
+  list.innerHTML = operatoriOptions.map(o=>{
+    const isActive = cfg.userName===o.nome;
+    const rc = roleColor[o.ruolo]||'#555';
+    const ri = roleIcon[o.ruolo]||'\U0001f464';
+    const nomeSafe = o.nome.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const ruoloSafe = o.ruolo.replace(/'/g,"\\'");
+    return `<button onclick="selectOperatore(\'${nomeSafe}\',\'${ruoloSafe}\')"
+      style="background:${isActive?rc:'var(--bg3)'};color:${isActive?'#fff':'var(--text)'};border:2px solid ${isActive?rc:'var(--border)'};border-radius:14px;padding:14px 16px;font-size:var(--fs-md);font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:space-between">
+      <span>${ri} ${o.nome.replace(/</g,'&lt;')}</span>
+      <span style="font-size:11px;opacity:.8;font-weight:400;text-transform:uppercase;letter-spacing:.06em">${o.ruolo}</span>
+    </button>`;
+  }).join('');
+  document.getElementById('op-modal').style.display='flex';
+}
+function selectOperatore(nome, ruolo){
+  // Trova PIN operatore e apri modal PIN
+  const op = operatoriOptions.find(o => o.nome === nome);
+  pinTargetOperator = { nome, ruolo: ruolo||'visualizzatore', pin: op ? (op.pin||'0000') : '0000' };
+  closeOpModal();
+  openPinModal();
+}
+
+// ── PIN MODAL ──────────────────────────────────────────────
+function openPinModal(){
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pin-nome').textContent = pinTargetOperator.nome;
+  document.getElementById('pin-err').style.display = 'none';
+  document.getElementById('pin-modal').style.display = 'flex';
+}
+function closePinModal(){
+  document.getElementById('pin-modal').style.display = 'none';
+  pinBuffer = '';
+  pinTargetOperator = null;
+}
+function closePinGoBack(){
+  document.getElementById('pin-modal').style.display = 'none';
+  pinBuffer = '';
+  showOpModal();
+}
+function pinKey(digit){
+  if(pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if(pinBuffer.length === 4) setTimeout(pinVerify, 120);
+}
+function pinDel(){
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+}
+function updatePinDots(){
+  document.querySelectorAll('.pin-dot').forEach((d, i) => {
+    d.classList.toggle('filled', i < pinBuffer.length);
+  });
+}
+function pinVerify(){
+  if(!pinTargetOperator) return;
+  if(pinBuffer === String(pinTargetOperator.pin)){
+    // PIN corretto ✔
+    cfg.userName = pinTargetOperator.nome;
+    cfg.userRole = pinTargetOperator.ruolo;
+    cfg.pinVerified = true;
+    localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+    closePinModal();
+    applyRoleUI();
+    const roleLabel = { admin:'🔑 Admin', operatore:'🔧 Operatore', visualizzatore:'👁️ Visualizzatore' };
+    showToast('success','✅', `${cfg.userName} — ${roleLabel[cfg.userRole]||cfg.userRole}`);
+  } else {
+    // PIN errato: shake + messaggio errore
+    const dots = document.querySelectorAll('.pin-dot');
+    dots.forEach(d => { d.classList.add('shake'); setTimeout(()=>d.classList.remove('shake'), 400); });
+    const errEl = document.getElementById('pin-err');
+    errEl.textContent = 'PIN errato, riprova';
+    errEl.style.display = 'block';
+    setTimeout(()=>{ pinBuffer = ''; updatePinDots(); }, 700);
+  }
+}
+function closeOpModal(){ document.getElementById('op-modal').style.display='none'; }
+
+// Applica permessi UI in base al ruolo
+function applyRoleUI(){
+  const navNew  = document.getElementById('nav-new');
+  const navSett = document.getElementById('nav-settings');
+  if(navNew)  navNew.parentElement.style.display = canWrite() ? '' : 'none';
+  if(navSett) navSett.parentElement.style.display = isAdmin()  ? '' : 'none';
+  const ri = { admin:'\U0001f511', operatore:'\U0001f527', visualizzatore:'\U0001f441\ufe0f' };
+  const sub = document.getElementById('hdr-sub');
+  if(sub) sub.textContent = `${cfg.userName||''} ${ri[cfg.userRole]||''}`.trim();
+  const cfgName = document.getElementById('cfg-name');
+  if(cfgName) cfgName.textContent = cfg.userName||'—';
+}
+
 // ── SCANNER (usa app QR di sistema) ──────────────────────
 function openScanner(){
   document.getElementById('scanner-overlay').style.display='flex';
@@ -722,6 +908,9 @@ function closeScanner(){
 
 // ── PAGES & UI ──────────────────────────────────────────
 function showPage(p){
+  // Controllo permessi
+  if(p==='new' && !canWrite()){ showToast('warn','🔒','Accesso riservato agli operatori'); return; }
+  if(p==='settings' && !isAdmin()){ showToast('warn','🔒','Accesso riservato agli amministratori'); return; }
   ['home','article','new','history','settings'].forEach(x=>{
     document.getElementById('page-'+x).classList.toggle('active',x===p);
     const n=document.getElementById('nav-'+x);if(n)n.classList.toggle('active',x===p);
