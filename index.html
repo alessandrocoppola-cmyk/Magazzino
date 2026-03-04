@@ -520,8 +520,10 @@ function startApp() {
   document.getElementById('cfg-url').textContent = isDemo ? 'Demo' : cfg.scriptUrl.substring(0,40)+'...';
   document.getElementById('cfg-name').textContent = cfg.userName||'—';
   document.getElementById('cfg-mode').textContent = isDemo ? 'Demo (locale)' : 'Google Sheets';
-  loadArticles(); loadDestinations();
-  if (window._qrArt) setTimeout(()=>openArticleByName(window._qrArt), 700);
+  loadArticles().then(()=>{
+    if (window._qrArt) openArticleByName(window._qrArt);
+  });
+  loadDestinations();
 }
 
 // ── API ──────────────────────────────────────────────────
@@ -581,7 +583,13 @@ function renderHistory(hist){
 
 // ── ARTICLE DETAIL ──────────────────────────────────────
 function openArticle(id){ const a=allArticles.find(x=>x.id===id);if(!a)return;currentArticle=a;currentOp='take';renderDetail(a);showPage('article'); }
-function openArticleByName(name){ const a=allArticles.find(x=>x.name===name||x.id===name);if(a){openArticle(a.id);return;}if(!allArticles.length)setTimeout(()=>openArticleByName(name),500); }
+function openArticleByName(name){
+  const a = allArticles.find(x=>x.name===name||x.id===name);
+  if(a){ openArticle(a.id); return; }
+  // Articolo non trovato — mostra messaggio
+  showToast('warn','🔍', `Articolo "${name}" non trovato. Verifica il nome nel foglio.`);
+  showPage('list');
+}
 
 function renderDetail(a){
   const{cls}=gsc(a);
