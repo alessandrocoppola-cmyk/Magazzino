@@ -763,7 +763,7 @@ async function submitMov(){
   const btn=document.getElementById('sub-btn');
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
   const ops={take:'Ho prelevato',add:'Ho aggiunto / Rifornimento',inv:'Inventario — quantità attuale'};
-  const res=await apiPost('addMovement',{articolo:currentArticle.name,operazione:ops[currentOp],quantita:qty,destinazione:dest,note:notes,operatore:opSel,timestamp:new Date().toLocaleString('it-IT')});
+  const res=await apiPost('addMovement',{articolo:currentArticle.name,articoloId:currentArticle.id,operazione:ops[currentOp],quantita:qty,destinazione:dest,note:notes,operatore:opSel,timestamp:new Date().toLocaleString('it-IT')});
   btn.disabled=false;selOp(currentOp);
   if(res.success){
     if(currentOp==='take')currentArticle.qty-=qty;
