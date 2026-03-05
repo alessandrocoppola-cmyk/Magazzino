@@ -348,6 +348,10 @@ select.field-inp{cursor:pointer;appearance:none}
         <div class="field-g"><label class="field-lbl">Nome articolo *</label><input class="field-inp" id="na-name" type="text" placeholder="es. Carta A4 80gr"></div>
         <div class="field-g"><label class="field-lbl">Descrizione</label><input class="field-inp" id="na-desc" type="text" placeholder="es. Risma 500 fogli, A4"></div>
         <div class="form-row">
+          <div class="field-g"><label class="field-lbl">⚡ Potenza</label><input class="field-inp" id="na-potenza" type="text" placeholder="es. 60W, 100-240W"></div>
+          <div class="field-g"><label class="field-lbl">🔌 Uscita</label><input class="field-inp" id="na-uscita" type="text" placeholder="es. 12V 5A"></div>
+        </div>
+        <div class="form-row">
           <div class="field-g"><label class="field-lbl">Unità</label><input class="field-inp" id="na-unit" type="text" placeholder="Pezzo, Risma..."></div>
           <div class="field-g"><label class="field-lbl">Costo (€)</label><input class="field-inp" id="na-cost" type="number" step="0.01" min="0" placeholder="0.00"></div>
         </div>
@@ -686,6 +690,8 @@ function renderDetail(a){
       <div style="padding:12px 20px 0"><div class="spill ${stC}">${stL}</div></div>
       <div class="info-rows">
         ${a.scaffale?`<div class="irow"><span class="ilbl">📍 Scaffale</span><span class="ival">${esc(a.scaffale)}</span></div>`:''}
+        ${a.potenza?`<div class="irow"><span class="ilbl">⚡ Potenza</span><span class="ival">${esc(a.potenza)}</span></div>`:''}
+        ${a.uscita?`<div class="irow"><span class="ilbl">🔌 Uscita</span><span class="ival">${esc(a.uscita)}</span></div>`:''}
         ${a.fornitore?`<div class="irow"><span class="ilbl">🏢 Fornitore</span><span class="ival">${esc(a.fornitore)}</span></div>`:''}
         ${a.email?`<div class="irow"><span class="ilbl">📧 Email</span><a class="ilink" href="mailto:${esc(a.email)}">${esc(a.email)}</a></div>`:''}
         ${a.link?`<div class="irow"><span class="ilbl">🛒 Ordina</span><a class="ilink" href="${esc(a.link)}" target="_blank">Apri →</a></div>`:''}
@@ -781,13 +787,13 @@ async function submitNewArticle(){
   err.style.display='none';
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Salvataggio...';
   const newId='ART'+String(Math.floor(Math.random()*9000)+1000);
-  const payload={id:newId,nome:name,descrizione:document.getElementById('na-desc').value.trim(),unitaMisura:document.getElementById('na-unit').value.trim()||'Pezzo',costoUnitario:document.getElementById('na-cost').value||0,quantitaMinima:parseInt(min)||0,scortaIniziale:parseInt(qty)||0,fornitore:document.getElementById('na-sup').value.trim(),emailFornitore:document.getElementById('na-email').value.trim(),linkOrdine:document.getElementById('na-link').value.trim(),scaffale:document.getElementById('na-shelf').value.trim()};
+  const payload={id:newId,nome:name,descrizione:document.getElementById('na-desc').value.trim(),potenza:document.getElementById('na-potenza').value.trim(),uscita:document.getElementById('na-uscita').value.trim(),unitaMisura:document.getElementById('na-unit').value.trim()||'Pezzo',costoUnitario:document.getElementById('na-cost').value||0,quantitaMinima:parseInt(min)||0,scortaIniziale:parseInt(qty)||0,fornitore:document.getElementById('na-sup').value.trim(),emailFornitore:document.getElementById('na-email').value.trim(),linkOrdine:document.getElementById('na-link').value.trim(),scaffale:document.getElementById('na-shelf').value.trim()};
   const res=await apiPost('addArticle',payload);
   btn.disabled=false;btn.textContent='💾 Salva e genera QR';
   if(res.success||isDemo){
     allArticles.push({id:newId,name:payload.nome,desc:payload.descrizione,unit:payload.unitaMisura,costo:payload.costoUnitario,min:payload.quantitaMinima,qty:payload.scortaIniziale,fornitore:payload.fornitore,email:payload.emailFornitore,link:payload.linkOrdine,scaffale:payload.scaffale});
     updateStats(allArticles);
-    ['na-name','na-desc','na-unit','na-cost','na-min','na-qty','na-sup','na-email','na-link','na-shelf'].forEach(id=>{document.getElementById(id).value='';});
+    ['na-name','na-desc','na-potenza','na-uscita','na-unit','na-cost','na-min','na-qty','na-sup','na-email','na-link','na-shelf'].forEach(id=>{document.getElementById(id).value='';});
     showQRModal(newId,payload.nome);
   }else{showToast('error','❌','Errore nel salvataggio.');}
 }
